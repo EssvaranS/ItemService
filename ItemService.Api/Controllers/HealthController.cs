@@ -13,18 +13,17 @@ namespace ItemService.Api.Controllers
     public class HealthController : ControllerBase
     {
         private readonly IMongoDbContext _dbContext;
-        private readonly IHostApplicationLifetime _lifetime;
-        private readonly static DateTime _start = DateTime.UtcNow;
+        private readonly StartupTime _startupTime;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HealthController"/> class.
         /// </summary>
         /// <param name="dbContext">MongoDB context for database connectivity check.</param>
-        /// <param name="lifetime">Application lifetime for uptime calculation.</param>
-        public HealthController(IMongoDbContext dbContext, IHostApplicationLifetime lifetime)
+        /// <param name="startupTime">Singleton for application startup time.</param>
+        public HealthController(IMongoDbContext dbContext, StartupTime startupTime)
         {
             _dbContext = dbContext;
-            _lifetime = lifetime;
+            _startupTime = startupTime;
         }
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace ItemService.Api.Controllers
             // Check MongoDB connection status
             var dbStatus = await _dbContext.PingAsync() ? "Connected" : "Disconnected";
             // Calculate uptime since service start
-            var uptime = DateTime.UtcNow - _start;
+            var uptime = DateTime.UtcNow - _startupTime.UtcStarted;
             var payload = new { status = "UP", dbStatus, uptime = $"{(int)uptime.TotalSeconds}s" };
             // Return consistent API response
             return Ok(ApiResponse<object>.Ok(payload));

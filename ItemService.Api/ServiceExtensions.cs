@@ -34,6 +34,9 @@ public static class ServiceExtensions
             return new MongoDbContext(settings);
         });
 
+        // Register StartupTime as singleton
+        builder.Services.AddSingleton<StartupTime>();
+
         // Register repositories and unit of work
         builder.Services.AddScoped<IItemRepository, ItemRepository>();
         builder.Services.AddScoped<IUnitOfWork>(sp =>
@@ -101,6 +104,12 @@ public static class ServiceExtensions
     {
         app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
         app.UseAuthorization(); // Enable authorization
+
+        // Mark application start time when host signals ApplicationStarted
+        var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+        var startup = app.Services.GetRequiredService<StartupTime>();
+        lifetime.ApplicationStarted.Register(() => startup.MarkStarted());
+
         app.MapControllers(); // Map controller endpoints
     }
 }
