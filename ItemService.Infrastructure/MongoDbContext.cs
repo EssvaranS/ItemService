@@ -1,4 +1,4 @@
-﻿using ItemService.Infrastructure.Settings;
+﻿using ItemService.Infrastructure.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -15,7 +15,7 @@ namespace ItemService.Infrastructure
         private readonly IMongoClient _client;
         public IMongoDatabase Database { get; }
 
-        public MongoDbContext(MongoSettings settings)
+        public MongoDbContext(MongoOptions settings)
         {
             _client = new MongoClient(settings.ConnectionString);
             Database = _client.GetDatabase(settings.DatabaseName);

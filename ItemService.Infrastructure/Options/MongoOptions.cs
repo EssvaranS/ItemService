@@ -1,6 +1,7 @@
-﻿namespace ItemService.Infrastructure.Settings
+﻿namespace ItemService.Infrastructure.Options
+
 {
-    public class MongoSettings
+    public class MongoOptions
     {
         public const string SectionName = "MongoSettings";
         public string ConnectionString { get; set; } = "";
