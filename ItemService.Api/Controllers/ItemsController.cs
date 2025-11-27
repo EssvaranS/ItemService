@@ -3,92 +3,61 @@ using ItemService.Application.DTOs;
 using ItemService.Application.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net; 
 
 namespace ItemService.Api.Controllers
 {
-    /// <summary>
-    /// Controller for managing items in the ItemService API.
-    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ItemsController : ControllerBase
     {
         private readonly IItemService _itemService;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ItemsController"/> class.
-        /// </summary>
-        /// <param name="itemService">Service for item operations.</param>
         public ItemsController(IItemService itemService)
         {
             _itemService = itemService;
         }
 
-        /// <summary>
-        /// Creates a new item.
-        /// </summary>
-        /// <param name="dto">Item creation data.</param>
-        /// <returns>Created item response.</returns>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateItemDto dto)
+        public async Task<ApiResponse<ItemDto>> Create([FromBody] CreateItemDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<string>.Fail("Validation failed"));
-            var created = await _itemService.CreateAsync(dto); // Create item
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<ItemDto>.Ok(created));
+                return ApiResponse<ItemDto>.Fail("Validation failed", (int)HttpStatusCode.BadRequest);
+            var created = await _itemService.CreateAsync(dto);
+            return ApiResponse<ItemDto>.Ok(created, statusCode: (int)HttpStatusCode.Created);
         }
 
-        /// <summary>
-        /// Gets all items.
-        /// </summary>
-        /// <returns>List of items.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ApiResponse<IEnumerable<ItemDto>>> GetAll()
         {
-            var items = await _itemService.GetAllAsync(); // Retrieve all items
-            return Ok(ApiResponse<IEnumerable<ItemDto>>.Ok(items));
+            var items = await _itemService.GetAllAsync();
+            return ApiResponse<IEnumerable<ItemDto>>.Ok(items, statusCode: (int)HttpStatusCode.OK);
         }
 
-        /// <summary>
-        /// Gets an item by its ID.
-        /// </summary>
-        /// <param name="id">Item ID.</param>
-        /// <returns>Item response or not found.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<ApiResponse<ItemDto>> GetById(string id)
         {
-            var item = await _itemService.GetByIdAsync(id); // Retrieve item by ID
-            if (item == null) return NotFound(ApiResponse<string>.Fail("Item not found"));
-            return Ok(ApiResponse<ItemDto>.Ok(item));
+            var item = await _itemService.GetByIdAsync(id);
+            if (item == null) return ApiResponse<ItemDto>.Fail("Item not found", (int)HttpStatusCode.NotFound);
+            return ApiResponse<ItemDto>.Ok(item, statusCode: (int)HttpStatusCode.OK);
         }
 
-        /// <summary>
-        /// Updates an item by its ID.
-        /// </summary>
-        /// <param name="id">Item ID.</param>
-        /// <param name="dto">Update data.</param>
-        /// <returns>Updated item response or not found.</returns>
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] UpdateItemDto dto)
+        public async Task<ApiResponse<ItemDto>> Update(string id, [FromBody] UpdateItemDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ApiResponse<string>.Fail("Validation failed"));
-            var updated = await _itemService.UpdateAsync(id, dto); // Update item
-            if (updated == null) return NotFound(ApiResponse<string>.Fail("Item not found"));
-            return Ok(ApiResponse<ItemDto>.Ok(updated));
+                return ApiResponse<ItemDto>.Fail("Validation failed", (int)HttpStatusCode.BadRequest);
+            var updated = await _itemService.UpdateAsync(id, dto);
+            if (updated == null) return ApiResponse<ItemDto>.Fail("Item not found", (int)HttpStatusCode.NotFound);
+            return ApiResponse<ItemDto>.Ok(updated, statusCode: (int)HttpStatusCode.OK);
         }
 
-        /// <summary>
-        /// Deletes an item by its ID.
-        /// </summary>
-        /// <param name="id">Item ID.</param>
-        /// <returns>Delete result response.</returns>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<ApiResponse<string>> Delete(string id)
         {
-            var deleted = await _itemService.DeleteAsync(id); // Delete item
-            if (!deleted) return NotFound(ApiResponse<string>.Fail("Item not found"));
-            return Ok(ApiResponse<string>.Ok("", "Item deleted"));
+            var deleted = await _itemService.DeleteAsync(id);
+            if (!deleted) return ApiResponse<string>.Fail("Item not found", (int)HttpStatusCode.NotFound);
+            return ApiResponse<string>.Ok("", "Item deleted", (int)HttpStatusCode.OK);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace ItemService.Api.Controllers
         /// </summary>
         /// <returns>Health status JSON.</returns>
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<ApiResponse<object>> Get()
         {
             // Check MongoDB connection status
             var dbStatus = await _dbContext.PingAsync() ? "Connected" : "Disconnected";
@@ -39,7 +39,7 @@ namespace ItemService.Api.Controllers
             var uptime = DateTime.UtcNow - _startupTime.UtcStarted;
             var payload = new { status = "UP", dbStatus, uptime = $"{(int)uptime.TotalSeconds}s" };
             // Return consistent API response
-            return Ok(ApiResponse<object>.Ok(payload));
+            return ApiResponse<object>.Ok(payload, statusCode: 200);
         }
     }
 }
