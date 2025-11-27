@@ -32,6 +32,8 @@ namespace ItemService.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateItemDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<string>.Fail("Validation failed"));
             var created = await _itemService.CreateAsync(dto); // Create item
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, ApiResponse<ItemDto>.Ok(created));
         }
@@ -69,6 +71,8 @@ namespace ItemService.Api.Controllers
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateItemDto dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<string>.Fail("Validation failed"));
             var updated = await _itemService.UpdateAsync(id, dto); // Update item
             if (updated == null) return NotFound(ApiResponse<string>.Fail("Item not found"));
             return Ok(ApiResponse<ItemDto>.Ok(updated));

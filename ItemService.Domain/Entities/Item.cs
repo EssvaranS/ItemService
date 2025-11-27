@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace ItemService.Domain.Entities
 {
@@ -19,18 +20,22 @@ namespace ItemService.Domain.Entities
         /// Gets or sets the name of the item.
         /// </summary>
         [BsonElement("name")]
+        [Required]
+        [StringLength(100, MinimumLength = 2)]
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the description of the item.
         /// </summary>
         [BsonElement("description")]
+        [StringLength(500)]
         public string Description { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the price of the item.
         /// </summary>
         [BsonElement("price")]
+        [Range(0.01, 1000000)]
         public decimal Price { get; set; }
 
         /// <summary>

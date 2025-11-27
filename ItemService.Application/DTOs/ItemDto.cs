@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 
 namespace ItemService.Application.DTOs
 {
@@ -22,7 +23,15 @@ namespace ItemService.Application.DTOs
     /// <param name="Name">Item name.</param>
     /// <param name="Description">Item description.</param>
     /// <param name="Price">Item price.</param>
-    public record CreateItemDto(string Name, string Description, decimal Price);
+    public record CreateItemDto(
+        [Required]
+        [StringLength(100, MinimumLength = 2)]
+        string Name,
+        [StringLength(500)]
+        string Description,
+        [Range(0.01, 1000000)]
+        decimal Price
+    );
 
     /// <summary>
     /// Data transfer object for updating an item.
@@ -30,6 +39,13 @@ namespace ItemService.Application.DTOs
     /// <param name="Name">Item name (optional).</param>
     /// <param name="Description">Item description (optional).</param>
     /// <param name="Price">Item price (optional).</param>
-    public record UpdateItemDto(string? Name, string? Description, decimal? Price);
+    public record UpdateItemDto(
+        [StringLength(100, MinimumLength = 2)]
+        string? Name,
+        [StringLength(500)]
+        string? Description,
+        [Range(0.01, 1000000)]
+        decimal? Price
+    );
 
 }
